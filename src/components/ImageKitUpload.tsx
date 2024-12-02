@@ -47,7 +47,7 @@ export default function ImageKitUploadComponent() {
   const [editedImage, setEditedImage] = useState<string>("");
   const [currentAction, setCurrentAction] = useState<EditAction | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageRef = useRef<HTMLImageElement>(new Image());
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const { imageSrc } = useImageContext();
   const imageSrcRef = useRef<string | null>(null);
   const urlRef = useRef<string | null>(null);
@@ -57,6 +57,20 @@ export default function ImageKitUploadComponent() {
   const [ipfsHashLog, setIpfsHashLog] = useState<string | null>(null);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [shareableLink, setShareableLink] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Create a new Image if not already created
+    if (!imageRef.current) {
+      imageRef.current = new Image();
+    }
+  
+    if (imageSrc) {
+      imageRef.current.onload = () => {
+        // ... existing load logic ...
+      };
+      imageRef.current.src = imageSrc;
+    }
+  }, [imageSrc]);
 
   useEffect(() => {
     // Update captured image from context
@@ -159,7 +173,7 @@ export default function ImageKitUploadComponent() {
 
   // Extract base64 without metadata
   useEffect(() => {
-    if (imageSrc) {
+    if (imageSrc && imageRef.current) {
       imageRef.current.src = imageSrc;
       imageRef.current.onload = () => {
         if (canvasRef.current) {
@@ -167,11 +181,11 @@ export default function ImageKitUploadComponent() {
           const ctx = canvas.getContext("2d");
 
           // Set canvas to image's original dimensions
-          canvas.width = imageRef.current.width;
-          canvas.height = imageRef.current.height;
+          canvas.width = imageRef?.current?.width ?? 400;
+          canvas.height = imageRef?.current?.height ?? 400;
 
           // Draw original image
-          ctx?.drawImage(imageRef.current, 0, 0);
+          ctx?.drawImage(imageRef.current!, 0, 0);
 
           // Set initial edited image
           setEditedImage(canvas.toDataURL());
@@ -189,7 +203,7 @@ export default function ImageKitUploadComponent() {
     if (!ctx) return;
 
     // Clear canvas and redraw original image
-    ctx.drawImage(imageRef.current, 0, 0);
+    ctx.drawImage(imageRef.current!, 0, 0);
 
     // Get image data
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -214,12 +228,12 @@ export default function ImageKitUploadComponent() {
     if (!ctx) return;
 
     // Rotate 90 degrees
-    canvas.width = imageRef.current.height;
-    canvas.height = imageRef.current.width;
+    canvas.width = imageRef?.current?.height ?? 400;
+    canvas.height = imageRef?.current?.width ?? 400;
 
     ctx.translate(canvas.width, 0);
     ctx.rotate(Math.PI / 2);
-    ctx.drawImage(imageRef.current, 0, 0);
+    ctx.drawImage(imageRef.current!, 0, 0);
 
     setEditedImage(canvas.toDataURL());
   };
@@ -235,7 +249,7 @@ export default function ImageKitUploadComponent() {
     canvas.width = width;
     canvas.height = height;
 
-    ctx.drawImage(imageRef.current, x, y, width, height, 0, 0, width, height);
+    ctx.drawImage(imageRef.current!, x, y, width, height, 0, 0, width, height);
 
     setEditedImage(canvas.toDataURL());
   };
@@ -316,8 +330,8 @@ export default function ImageKitUploadComponent() {
             <button
               onClick={() => {
                 // Example crop: crop center 50%
-                const srcWidth = imageRef.current.width;
-                const srcHeight = imageRef.current.height;
+                const srcWidth = imageRef.current?.width ?? 400;
+                const srcHeight = imageRef.current?.height ?? 400;
                 cropImage(
                   srcWidth / 4,
                   srcHeight / 4,
