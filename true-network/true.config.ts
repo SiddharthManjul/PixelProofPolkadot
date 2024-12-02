@@ -18,7 +18,7 @@ export const config: TrueConfig = {
   network: testnet,
   account: {
     address: 'o2bGSpuWujp5ShQ6BZUQaYV4wwMwsJxgGuMtmc7hS8tt7x9',
-    secret: process.env.TRUE_NETWORK_SECRET_KEY ?? ''
+    secret: process.env.NEXT_PUBLIC_TRUE_NETWORK_SECRET_KEY ?? ''
   },
   issuer: {
     name: 'PixelStorarc',

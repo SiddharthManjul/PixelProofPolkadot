@@ -54,7 +54,7 @@ export default function ImageKitUploadComponent() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [fileSystemImage] = useState<string | null>(null);
   const ipfsHashRef = useRef<string | null>(null);
-  const [ipfsHash, setIpfsHash] = useState<string | null>(null);
+  const [ipfsHashLog, setIpfsHashLog] = useState<string | null>(null);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [shareableLink, setShareableLink] = useState<string | null>(null);
 
@@ -81,30 +81,31 @@ export default function ImageKitUploadComponent() {
       console.log(base64Data);
 
       try {
-        // const api = await getTrueNetworkInstance();
+        const api = await getTrueNetworkInstance();
         const uploadResult = await pinata.upload.json({ base64Data });
         console.log("Upload successful:", uploadResult);
         console.log(uploadResult.IpfsHash);
         ipfsHashRef.current = uploadResult.IpfsHash;
 
-        setIpfsHash(uploadResult.IpfsHash);
+        setIpfsHashLog(uploadResult.IpfsHash);
         const shareLink = `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`;
         setShareableLink(shareLink);
 
         // Schema for True Network.
-        // const originalImageSchema = Schema.create({
-        //   cid: Text,
-        //   timestamp: U64,
-        //   parent: U64,
-        // });
+        const originalImageSchema = Schema.create({
+          cid: Text,
+          timestamp: U64,
+          parent: U64,
+        });
 
-        // if (isWalletConnected && connectedAccount?.address) {
-        //   await originalImageSchema.attest(api, connectedAccount?.address, {
-        //     cid: ipfsHashRef.current,
-        //     timestamp: Date.now(),
-        //     parent: 0,
-        //   });
-        // }
+        if (isWalletConnected && connectedAccount?.address) {
+          await originalImageSchema.attest(api, connectedAccount?.address, {
+            cid: ipfsHashRef.current,
+            timestamp: Date.now(),
+            parent: 0,
+          });
+          // setTransactionHash(trueNetworkAttestation);
+        }
       } catch (error) {
         console.error("Upload failed:", error);
       }
@@ -336,19 +337,19 @@ export default function ImageKitUploadComponent() {
           </div>
         )}
 
-        {(ipfsHash || shareableLink) && (
+        {(ipfsHashLog || shareableLink) && (
           <div className="mt-4 p-4 bg-gray-100 rounded-lg">
             <h3 className="text-lg font-semibold mb-2">Attestation Details</h3>
-            {ipfsHash && (
+            {ipfsHashLog && (
               <div>
                 <span className="font-medium">IPFS Hash:</span>{" "}
                 <a
-                  href={`https://gateway.pinata.cloud/ipfs/${ipfsHash}`}
+                  href={`https://gateway.pinata.cloud/ipfs/${ipfsHashLog}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
                 >
-                  {ipfsHash}
+                  {ipfsHashLog}
                 </a>
               </div>
             )}

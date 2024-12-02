@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -26,18 +27,19 @@ const videoConstraints = {
 export default function App() {
   const router = useRouter();
 
-  const { connectedAccount, isWalletConnected } = useWalletStore(
-    (s) => s
-  );
+  const { connectedAccount, isWalletConnected } = useWalletStore((s) => s);
   const [isCaptureEnable, setCaptureEnable] = useState<boolean>(false);
   const webcamRef = useRef<Webcam>(null);
   const urlRef = useRef<string | null>(null);
   const timestampRef = useRef<string | null>(null);
   const imageSrcRef = useRef<string | null>(null);
   const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
+  const [isAttested, setIsAttested] = useState<boolean>(false);
   const ipfsHashRef = useRef<string | null>(null);
-  const { setImageSrc } =
-    useImageContext();
+  const [ipfsHashLog, setIpfsHashLog] = useState<string | null>(null);
+  const [shareableLink, setShareableLink] = useState<string | null>(null);
+  const { setImageSrc } = useImageContext();
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   useEffect(() => {
     timestampRef.current = new Date().toISOString();
@@ -78,6 +80,10 @@ export default function App() {
         console.log(uploadResult.IpfsHash);
         ipfsHashRef.current = uploadResult.IpfsHash;
 
+        setIpfsHashLog(uploadResult.IpfsHash);
+        const shareLink = `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`;
+        setShareableLink(shareLink);
+
         // Schema for True Network.
         const originalImageSchema = Schema.create({
           cid: Text,
@@ -91,6 +97,7 @@ export default function App() {
             timestamp: Date.now(),
             parent: 0,
           });
+          // setTransactionHash(trueNetworkAttestation);
         }
       } catch (error) {
         console.error("Upload failed:", error);
@@ -99,10 +106,56 @@ export default function App() {
     console.log("Uploaded", ipfsHashRef);
   };
 
+  const copyShareableLink = () => {
+    if (shareableLink) {
+      navigator.clipboard
+        .writeText(shareableLink)
+        .then(() => {
+          alert("Shareable link copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy link: ", err);
+        });
+    }
+  };
+
+  const shareOnSocialMedia = (
+    platform: "twitter" | "linkedin" | "facebook"
+  ) => {
+    if (!shareableLink) return;
+
+    const text = encodeURIComponent(
+      "Check out this image I just uploaded and attested!"
+    );
+    let shareUrl = "";
+
+    switch (platform) {
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(
+          shareableLink
+        )}`;
+        break;
+      case "linkedin":
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+          shareableLink
+        )}`;
+        break;
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          shareableLink
+        )}`;
+        break;
+    }
+
+    window.open(shareUrl, "_blank");
+  };
+
   const handleDelete = () => {
     urlRef.current = null;
     imageSrcRef.current = null;
     setIsImageCaptured(false);
+    setIsImageCaptured(false);
+    setIsAttested(false);
   };
 
   return (
@@ -146,7 +199,9 @@ export default function App() {
           )}
           {isCaptureEnable && (
             <div className="font-grotesk text-lg">
-              <RainbowButton className="text-5xl pt-8 pb-8" onClick={capture}><MdOutlineCamera /></RainbowButton>
+              <RainbowButton className="text-5xl pt-8 pb-8" onClick={capture}>
+                <MdOutlineCamera />
+              </RainbowButton>
             </div>
           )}
 
@@ -168,7 +223,11 @@ export default function App() {
         {isImageCaptured && urlRef.current && (
           <div className="flex justify-center gap-4 mt-8 font-grotesk text-lg">
             <RainbowButton onClick={handleDelete}>Delete</RainbowButton>
-            <RainbowButton onClick={() => router.push("/editor")}>
+            <RainbowButton
+              onClick={() => router.push("/editor")}
+              className={!isAttested ? "opacity-50 cursor-not-allowed" : ""}
+              disabled={!isAttested}
+            >
               Edit
             </RainbowButton>
             <RainbowButton onClick={handleUpload}>Attest</RainbowButton>
@@ -180,14 +239,88 @@ export default function App() {
           
         </div>
       )} */}
+      {(ipfsHashLog || shareableLink) && (
+        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">Attestation Details</h3>
+          {ipfsHashLog && (
+            <div>
+              <span className="font-medium">IPFS Hash:</span>{" "}
+              <a
+                href={`https://gateway.pinata.cloud/ipfs/${ipfsHashLog}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {ipfsHashLog}
+              </a>
+            </div>
+          )}
+          {transactionHash && (
+            <div>
+              <span className="font-medium">Transaction Hash:</span>{" "}
+              {transactionHash}
+            </div>
+          )}
+          {shareableLink && (
+            <div className="mt-2 flex items-center space-x-2">
+              <button
+                onClick={copyShareableLink}
+                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+              >
+                Copy Link
+              </button>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => shareOnSocialMedia("twitter")}
+                  className="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-500"
+                >
+                  Share on Twitter
+                </button>
+                <button
+                  onClick={() => shareOnSocialMedia("linkedin")}
+                  className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800"
+                >
+                  Share on LinkedIn
+                </button>
+                <button
+                  onClick={() => shareOnSocialMedia("facebook")}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                >
+                  Share on Facebook
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       <div className="font-grotesk font-semibold text-blue-600 absolute bottom-0.5 left-14">
-        <h1 className="font-bold text-black text-2xl underline font-josefin">Capture & Attest Walkthrough:-</h1>
-        <h1><strong className="font-bold text-black">Start: </strong>To Start the in-built Camera functionality</h1>
-        <h1><strong className="font-bold text-black">End: </strong>To End the in-built Camera functionality</h1>
-        <h1><strong className="font-bold text-black">Capture: </strong>To click the Image</h1>
-        <h1><strong className="font-bold text-black">Retake: </strong>To shoot the Image again</h1>
-        <h1><strong className="font-bold text-black">Edit: </strong>Move to Editor and edit the Image</h1>
-        <h1><strong className="font-bold text-black">Attest: </strong>To Attest the Image uniquely Digital Image Provenance</h1>
+        <h1 className="font-bold text-black text-2xl underline font-josefin">
+          Capture & Attest Walkthrough:-
+        </h1>
+        <h1>
+          <strong className="font-bold text-black">Start: </strong>To Start the
+          in-built Camera functionality
+        </h1>
+        <h1>
+          <strong className="font-bold text-black">End: </strong>To End the
+          in-built Camera functionality
+        </h1>
+        <h1>
+          <strong className="font-bold text-black">Capture: </strong>To click
+          the Image
+        </h1>
+        <h1>
+          <strong className="font-bold text-black">Retake: </strong>To shoot the
+          Image again
+        </h1>
+        <h1>
+          <strong className="font-bold text-black">Edit: </strong>Move to Editor
+          and edit the Image
+        </h1>
+        <h1>
+          <strong className="font-bold text-black">Attest: </strong>To Attest
+          the Image uniquely Digital Image Provenance
+        </h1>
       </div>
     </>
   );
