@@ -13,6 +13,7 @@ import { getTrueNetworkInstance } from "@/true-network/true.config";
 import { useWalletStore } from "@/src/providers/walletStoreProvider";
 import { MdOutlineCamera } from "react-icons/md";
 import { motion } from "framer-motion";
+import PulsatingButton from "../../components/ui/pulsating-button";
 
 const pinata = new PinataSDK({
   pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT!,
@@ -80,6 +81,7 @@ export default function App() {
         console.log("Upload successful:", uploadResult);
         console.log(uploadResult.IpfsHash);
         ipfsHashRef.current = uploadResult.IpfsHash;
+        setIsAttested(true)
 
         setIpfsHashLog(uploadResult.IpfsHash);
         const shareLink = `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`;
@@ -160,7 +162,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 pt-36">
+    <div className="min-h-screen bg-gradient-to-br from-red-300 from-10% via-sky-300 via-30% to-emerald-300 to-90% py-8 px-4 pt-36 font-grotesk">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -169,19 +171,17 @@ export default function App() {
       >
         {/* Capture/End Button */}
         <div className="flex justify-center ">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-blue-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-blue-600 transition-colors"
+          <RainbowButton
+            className="bg-blue-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-blue-600 transition-colors mb-8"
             onClick={() => setCaptureEnable(!isCaptureEnable)}
           >
             {!isCaptureEnable ? "Start" : "End"}
-          </motion.button>
+          </RainbowButton>
         </div>
 
         {/* Timestamp Display */}
         {timestampRef.current && (
-          <div className="text-center mb-4">
+          <div className="text-center mb-8 font-bold text-2xl">
             <p className="text-gray-600">
               Timestamp: {new Date(timestampRef.current).toLocaleString()}
             </p>
@@ -189,27 +189,27 @@ export default function App() {
         )}
 
         {/* Camera and Image Container */}
-        <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+        <div className="flex flex-col md:flex-row justify-center items-center gap-8 lg:gap-[102px]">
           {/* Camera UI */}
           {isCaptureEnable && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="w-full max-w-md flex flex-row"
+              className="w-full max-w-md lg:flex lg:flex-row"
             >
               <Webcam
                 audio={false}
                 ref={webcamRef}
                 screenshotFormat="image/jpeg"
                 videoConstraints={videoConstraints}
-                className="w-full rounded-xl shadow-lg "
+                className="w-full rounded-xl shadow-lg border-purple-500 border-4"
               />
               <div className="flex justify-center mt-4">
                 <RainbowButton
                   onClick={capture}
-                  className="bg-green-500 text-white p-4 rounded-full shadow-md hover:bg-green-600 transition-colors ml-2"
+                  className="bg-green-500 text-white p-4 rounded-2xl shadow-md hover:bg-green-600 transition-colors mt-6 lg:mt-20 ml-2 py-6 px-6 text-3xl"
                 >
-                  <MdOutlineCamera size={24} />
+                  <MdOutlineCamera size={36} />
                 </RainbowButton>
               </div>
             </motion.div>
@@ -220,7 +220,7 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="w-full max-w-md"
+              className="w-full max-w-md border-4 border-purple-500 rounded-xl"
             >
               <img
                 src={urlRef.current}
@@ -234,19 +234,15 @@ export default function App() {
         {/* Action Buttons */}
         {isImageCaptured && urlRef.current && (
           <div className="flex justify-center space-x-4 mt-8">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <RainbowButton
               onClick={handleDelete}
               className="bg-red-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-red-600 transition-colors"
             >
               Delete
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            </RainbowButton>
+            <RainbowButton
               onClick={() => {
-                /* navigation logic */
+                router.push("/editor")
               }}
               disabled={!isAttested}
               className={`px-6 py-2 rounded-full shadow-md transition-colors ${
@@ -256,15 +252,13 @@ export default function App() {
               }`}
             >
               Edit
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            </RainbowButton>
+            <RainbowButton
               onClick={handleUpload}
               className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-600 transition-colors"
             >
               Attest
-            </motion.button>
+            </RainbowButton>
           </div>
         )}
 
@@ -286,37 +280,37 @@ export default function App() {
             )}
             {transactionHash && (
               <div>
-                <span className="font-medium">Transaction Hash:</span>{" "}
+                <span className="font-medium mx-2">Transaction Hash:</span>{" "}
                 {transactionHash}
               </div>
             )}
             {shareableLink && (
-              <div className="mt-2 flex justify-center space-x-2">
-                <button
+              <div className="mt-2 flex justify-center space-x-2 lg:space-x-6">
+                <PulsatingButton
                   onClick={copyShareableLink}
-                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  className="bg-purple-800 text-white px-3 py-1 rounded hover:bg-blue-600"
                 >
                   Copy Link
-                </button>
-                <div className="flex space-x-2">
-                  <button
+                </PulsatingButton>
+                <div className="flex space-x-2 lg:space-x-6">
+                  <PulsatingButton
                     onClick={() => shareOnSocialMedia("twitter")}
-                    className="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-500"
+                    className="bg-purple-800 text-white px-3 py-1 rounded hover:bg-blue-500"
                   >
                     Share on Twitter
-                  </button>
-                  <button
+                  </PulsatingButton>
+                  <PulsatingButton
                     onClick={() => shareOnSocialMedia("linkedin")}
-                    className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800"
+                    className="bg-purple-800 text-white px-3 py-1 rounded hover:bg-blue-800"
                   >
                     Share on LinkedIn
-                  </button>
-                  <button
+                  </PulsatingButton>
+                  <PulsatingButton
                     onClick={() => shareOnSocialMedia("facebook")}
-                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                    className="bg-purple-800 text-white px-3 py-1 rounded hover:bg-blue-700"
                   >
                     Share on Facebook
-                  </button>
+                  </PulsatingButton>
                 </div>
               </div>
             )}
@@ -349,7 +343,8 @@ export default function App() {
                 <strong>Retake:</strong> Shoot the image again
               </p>
               <p>
-                <strong>Edit:</strong> Modify the captured image
+                <strong>Edit:</strong> Modify the captured image, Editor is
+                available only after Attestation.
               </p>
               <p>
                 <strong>Attest:</strong> Verify digital image provenance
