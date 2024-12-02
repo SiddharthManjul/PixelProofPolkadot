@@ -2,7 +2,7 @@ import Header from "./Header";
 
 export default function Navbar() {
   return (
-    <div className="absolute z-50 w-full top-0 left-0">
+    <div className="bg-purple-400 absolute z-50 w-full top-0 left-0">
       <h1 className="hidden md:block absolute z-100 top-10 left-14 font-grotesk font-bold text-4xl text-[#17153B]">
         PixelProof
       </h1>

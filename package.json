@@ -1,5 +1,5 @@
 {
-  "name": "FrontendPixel",
+  "name": "frontendpixelproof",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,6 +17,7 @@
     "@polkadot-onboard/injected-wallets": "^1.1.0",
     "@polkadot-onboard/react": "^1.1.0",
     "@polkadot-onboard/wallet-connect": "^1.1.0",
+    "@polkadot/api": "^15.0.1",
     "@react-three/fiber": "^8.17.10",
     "@syncfusion/ej2-base": "^27.2.2",
     "@syncfusion/ej2-dropdowns": "^27.2.4",

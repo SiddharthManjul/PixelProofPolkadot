@@ -74,7 +74,8 @@ module.exports = {
   		},
   		animation: {
   			grid: 'grid 15s linear infinite',
-  			rainbow: 'rainbow var(--speed, 2s) infinite linear'
+  			rainbow: 'rainbow var(--speed, 2s) infinite linear',
+  			pulse: 'pulse var(--duration) ease-out infinite'
   		},
   		keyframes: {
   			grid: {
@@ -91,6 +92,14 @@ module.exports = {
   				},
   				'100%': {
   					'background-position': '200%'
+  				}
+  			},
+  			pulse: {
+  				'0%, 100%': {
+  					boxShadow: '0 0 0 0 var(--pulse-color)'
+  				},
+  				'50%': {
+  					boxShadow: '0 0 0 8px var(--pulse-color)'
   				}
   			}
   		}

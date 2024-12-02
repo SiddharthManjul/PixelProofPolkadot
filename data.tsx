@@ -1,143 +1,165 @@
-"use client";
+// import React, { useState, useRef } from 'react';
+// import Webcam from 'react-webcam';
+// import { MdOutlineCamera } from 'react-icons/md';
+// import { motion } from 'framer-motion';
 
-import React, { useEffect, useState } from "react";
-import Nextjs from "@/src/components/logos/next";
-import TypeScriptLogo from "@/src/components/logos/typescript";
-import { useWalletStore } from "src/providers/walletStoreProvider";
-import { ArrowRight } from "lucide-react";
+// const ResponsiveCaptureComponent = () => {
+//   const [isCaptureEnable, setCaptureEnable] = useState(false);
+//   const [isImageCaptured, setIsImageCaptured] = useState(false);
+//   const [isAttested, setIsAttested] = useState(false);
+//   const webcamRef = useRef(null);
+//   const urlRef = useRef(null);
+//   const timestampRef = useRef(null);
 
-export default function Home() {
-  const { connectedWallet, connectedAccount, api } = useWalletStore(
-    (state) => state
-  );
+//   const videoConstraints = {
+//     width: { ideal: 1280 },
+//     height: { ideal: 720 },
+//     facingMode: 'user'
+//   };
 
-  const [balance, setBalance] = useState<number>(0);
-  const [chainToken, setChainToken] = useState<string>("");
-  const [chain, setChain] = useState<string>("");
+//   const handleDelete = () => {
+//     urlRef.current = null;
+//     setIsImageCaptured(false);
+//     setIsAttested(false);
+//   };
 
-  useEffect(() => {
-    async function getChainData() {
-      if (!api) return;
-      const [chain, nodeName] = await Promise.all([
-        api.rpc.system.chain(),
-        api.rpc.system.name(),
-      ]);
-      setChain(`${chain} - ${nodeName}`);
+//   const handleUpload = () => {
+//     // Placeholder for attestation logic
+//     setIsAttested(true);
+//   };
 
-      if (connectedAccount?.address) {
-        const chainToken = api.registry.chainTokens[0];
-        api.query.system.account(
-          connectedAccount?.address,
-          (res: {
-            data: { free: { toHuman: () => React.SetStateAction<number> } };
-          }) => {
-            setBalance(res.data.free.toHuman());
-            setChainToken(chainToken);
-          }
-        );
-      }
-    }
-    getChainData();
-  }, [api, connectedAccount]);
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
+//       <motion.div 
+//         initial={{ opacity: 0, y: 20 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 0.5 }}
+//         className="max-w-6xl mx-auto"
+//       >
+//         {/* Capture/End Button */}
+//         <div className="flex justify-center mb-8">
+//           <motion.button
+//             whileHover={{ scale: 1.05 }}
+//             whileTap={{ scale: 0.95 }}
+//             className="bg-blue-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-blue-600 transition-colors"
+//             onClick={() => setCaptureEnable(!isCaptureEnable)}
+//           >
+//             {!isCaptureEnable ? 'Start' : 'End'}
+//           </motion.button>
+//         </div>
 
-  async function signTransaction() {
-    try {
-      if (api && connectedAccount?.address && connectedWallet?.signer) {
-        const signer = connectedWallet.signer;
+//         {/* Timestamp Display */}
+//         {timestampRef.current && (
+//           <div className="text-center mb-4">
+//             <p className="text-gray-600">
+//               Timestamp: {new Date(timestampRef.current).toLocaleString()}
+//             </p>
+//           </div>
+//         )}
 
-        await api.tx.system
-          .remark("Hello World")
-          .signAndSend(connectedAccount.address, { signer }, () => {
-            // do something with result
-          });
-      }
-    } catch (err) {
-      alert("Error signing transaction");
-      console.log(err);
-    }
-  }
+//         {/* Camera and Image Container */}
+//         <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+//           {/* Camera UI */}
+//           {isCaptureEnable && (
+//             <motion.div 
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               className="w-full max-w-md"
+//             >
+//               <Webcam
+//                 audio={false}
+//                 ref={webcamRef}
+//                 screenshotFormat="image/jpeg"
+//                 videoConstraints={videoConstraints}
+//                 className="w-full rounded-xl shadow-lg"
+//               />
+//               <div className="flex justify-center mt-4">
+//                 <motion.button
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.9 }}
+//                   onClick={capture}
+//                   className="bg-green-500 text-white p-4 rounded-full shadow-md hover:bg-green-600 transition-colors"
+//                 >
+//                   <MdOutlineCamera size={24} />
+//                 </motion.button>
+//               </div>
+//             </motion.div>
+//           )}
 
-  // Example function to interact with a smart contract uing the `@polkadot/api-contract` package
-  // https://polkadot.js.org/docs/api-contract/start/contract.read
-  // https://www.npmjs.com/package/@polkadot/api-contract
+//           {/* Captured Image UI */}
+//           {isImageCaptured && urlRef.current && (
+//             <motion.div 
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               className="w-full max-w-md"
+//             >
+//               <img
+//                 src={urlRef.current}
+//                 alt="Screenshot"
+//                 className="w-full rounded-xl shadow-lg"
+//               />
+//             </motion.div>
+//           )}
+//         </div>
 
-  // async function callContractFunction() {
-  //   try {
-  //     if (api && connectedAccount?.address) {
-  //       // Import your contract ABI and address
-  //       // import contractABI from './path/to/contractABI.json';
-  //       // const contractAddress = 'YOUR_CONTRACT_ADDRESS';
-  //
-  //       // Create a contract instance
-  //       // const contract = new ContractPromise(api, contractABI, contractAddress);
-  //
-  //       // Call a read-only function
-  //       // const { result, output } = await contract.query.yourFunctionName(connectedAccount.address, {});
-  //
-  //       // Call a function that modifies state
-  //       // const extrinsic = contract.tx.yourFunctionName({});
-  //       // await extrinsic.signAndSend(connectedAccount.address, (result) => {
-  //       //   console.log(`Current status is ${result.status}`);
-  //       // });
-  //     }
-  //   } catch (err) {
-  //     alert("Error interacting with contract");
-  //     console.log(err);
-  //   }
-  // }
+//         {/* Action Buttons */}
+//         {isImageCaptured && urlRef.current && (
+//           <div className="flex justify-center space-x-4 mt-8">
+//             <motion.button
+//               whileHover={{ scale: 1.05 }}
+//               whileTap={{ scale: 0.95 }}
+//               onClick={handleDelete}
+//               className="bg-red-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-red-600 transition-colors"
+//             >
+//               Delete
+//             </motion.button>
+//             <motion.button
+//               whileHover={{ scale: 1.05 }}
+//               whileTap={{ scale: 0.95 }}
+//               onClick={() => {/* navigation logic */}}
+//               disabled={!isAttested}
+//               className={`px-6 py-2 rounded-full shadow-md transition-colors ${
+//                 isAttested 
+//                   ? 'bg-blue-500 text-white hover:bg-blue-600' 
+//                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+//               }`}
+//             >
+//               Edit
+//             </motion.button>
+//             <motion.button
+//               whileHover={{ scale: 1.05 }}
+//               whileTap={{ scale: 0.95 }}
+//               onClick={handleUpload}
+//               className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-600 transition-colors"
+//             >
+//               Attest
+//             </motion.button>
+//           </div>
+//         )}
 
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-900 to-purple-700 text-white py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-center items-center space-x-6 mb-12">
-          <TypeScriptLogo className="w-16 h-16" />
-          <ArrowRight size={24} />
-          <Nextjs className="w-16 h-16" />
-          <ArrowRight size={24} />
-          <img
-            src={"/polkadot-logo.svg"}
-            alt="Polkadot"
-            className="w-16 h-16"
-          />
-        </div>
+//         {/* Walkthrough Instructions */}
+//         <motion.div 
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           className="mt-12 bg-white p-6 rounded-xl shadow-md"
+//         >
+//           <h2 className="text-2xl font-bold mb-4 text-center">Capture & Attest Walkthrough</h2>
+//           <div className="grid md:grid-cols-2 gap-4 text-gray-700">
+//             <div>
+//               <p><strong>Start:</strong> Activate the in-built camera</p>
+//               <p><strong>End:</strong> Deactivate the camera</p>
+//               <p><strong>Capture:</strong> Take a photo</p>
+//             </div>
+//             <div>
+//               <p><strong>Retake:</strong> Shoot the image again</p>
+//               <p><strong>Edit:</strong> Modify the captured image</p>
+//               <p><strong>Attest:</strong> Verify digital image provenance</p>
+//             </div>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+//     </div>
+//   );
+// };
 
-        <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 mb-8">
-          {connectedWallet?.isConnected ? (
-            <div className="space-y-4">
-              {connectedAccount?.address && (
-                <>
-                  <p className="text-xl font-semibold">
-                    Balance: {balance} {chainToken}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={signTransaction}
-                    className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-                  >
-                    Sign Transaction
-                  </button>
-                </>
-              )}
-              <p className="text-sm opacity-75">{chain}</p>
-            </div>
-          ) : (
-            <div className="text-center">
-              <h4 className="text-2xl font-bold mb-4">Connect your Wallet</h4>
-              <p className="opacity-75">
-                Please connect your wallet to interact with the dApp.
-              </p>
-            </div>
-          )}
-        </div>
-
-        <p className="text-center text-lg">
-          Make changes to{" "}
-          <code className="bg-purple-800 px-2 py-1 rounded">
-            src/app/page.tsx
-          </code>
-        </p>
-      </div>
-    </main>
-  );
-}
+// export default ResponsiveCaptureComponent;

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -244,7 +246,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowChains(!showChains)}
-                className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
+                className="bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% hover:from-pink-500 hover:to-orange-500 border-2 border-black px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
                 disabled={isChangingChain}
               >
                 <img
@@ -289,7 +291,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={toggleAccounts}
-                className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
+                className="bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% hover:from-pink-500 hover:to-orange-500 border-2 border-black px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
               >
                 {connectedWallet?.metadata?.iconUrl && (
                   <img
@@ -329,7 +331,7 @@ const Header: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleDisconnect}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition duration-200 flex items-center space-x-2"
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition duration-200 flex items-center space-x-2"
                     >
                       <LogOut size={16} />
                       <span>Disconnect Wallet</span>
@@ -343,7 +345,7 @@ const Header: React.FC = () => {
           <button
             type="button"
             onClick={toggleWalletModal}
-            className="bg-purple-700 hover:bg-purple-600 text-white font-josefin px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
+            className="bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% hover:from-pink-500 hover:to-orange-500 border-2 border-black text-black font-josefin px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
           >
             <Wallet size={16} />
             <span>Connect Wallet</span>
