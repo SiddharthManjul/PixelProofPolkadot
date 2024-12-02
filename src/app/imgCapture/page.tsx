@@ -64,7 +64,10 @@ export default function App() {
   const handleUpload = async () => {
     if (imageSrcRef.current) {
       localStorage.setItem("capturedImage", imageSrcRef.current);
-      const base64Data = imageSrcRef.current.replace(/^data:image\/\w+;base64,/, ""); 
+      const base64Data = imageSrcRef.current.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
 
       console.log(base64Data);
 

@@ -17,12 +17,12 @@ export const getTrueNetworkInstance = async (): Promise<TrueApi> => {
 export const config: TrueConfig = {
   network: testnet,
   account: {
-    address: 'noj5nKRfM7vrkATrF1bTRYenyiTME5KwK4woB2LVL72Q32J',
+    address: 'o2bGSpuWujp5ShQ6BZUQaYV4wwMwsJxgGuMtmc7hS8tt7x9',
     secret: process.env.TRUE_NETWORK_SECRET_KEY ?? ''
   },
   issuer: {
-    name: 'PixelProofBrooklyn',
-    hash: '0x4cb2ff2546ab7bb2ab9c418477bdb5c00f6b787d0198f9c11ccb1a24a64b6932'
+    name: 'PixelStorarc',
+    hash: '0xc7c95135fbcc47129adc93260b21525db449371edaaafb3d1af8de4287bc8f72'
   },
   algorithm: {
     id: undefined,
