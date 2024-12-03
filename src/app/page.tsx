@@ -77,7 +77,7 @@ export default function RetroGridDemo() {
           alt="Picture of the author"
         />
       </div>
-      <div className="w-full ml-8 ">
+      <div className="w-full mx-auto">
         <h1 className="mt-12 lg:mt-52 font-josefin font-bold text-5xl ml-16 lg:absolute w-80 text-white">
           Problems with Digital Media
         </h1>
